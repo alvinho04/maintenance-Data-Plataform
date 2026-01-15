@@ -51,3 +51,72 @@ Models include:
 
 # 🧱 Architecture Overview
 
+                ┌───────────────────────────┐
+                │         Retool App        │
+                │ (operational UI: OS, pcs) │
+                └──────────────┬────────────┘
+                               │ CRUD / actions
+                               ▼
+                      ┌─────────────────┐
+                      │   Postgres OLTP │
+                      │  (source of truth)
+                      └───────┬─────────┘
+                              │ ingestion
+                              ▼
+                 ┌─────────────────────────┐
+                 │         Dagster          │
+                 │  jobs, assets, pipelines │
+                 └───────────┬──────────────┘
+                             │ analytics
+                             ▼
+                     ┌─────────────────┐
+                     │ ClickHouse OLAP │
+                     │ (historical data)
+                     └──────┬──────────┘
+                            │ queries
+                            ├─────────► Retool dashboards
+                            ▼
+                       ┌──────────┐
+                       │ Metabase │
+                       └──────────┘
+
+
+---
+
+# 📦 Tech Stack
+
+| Component | Tool | Purpose |
+|----------|------|----------|
+| Database (OLTP) | **Postgres** | Operational system (app data) |
+| Database (OLAP) | **ClickHouse** | Historical + analytics |
+| App Layer | **Retool** | CRUD, UI, mechanics workflow |
+| Orchestration | **Dagster** | Pipelines, transformations, metrics |
+| Business Intelligence | **Metabase** | Dashboards + SQL |
+| Environment | **Docker** | Local development |
+
+---
+
+# 📁 Recommended Repository Structure
+maintenance-data-platform/
+│
+├── docker/
+│ └── docker-compose.yml
+│
+├── sql/
+│ ├── postgres/
+│ │ └── full_schema.sql
+│ └── clickhouse/
+│ ├── analytics_tables.sql
+│ └── materialized_views.sql
+│
+├── dagster/
+│ ├── maintenance_dagster/
+│ │ ├── assets/
+│ │ ├── jobs/
+│ │ ├── resources/
+│ │ └── definitions.py
+│ └── pyproject.toml
+│
+├── retool/
+│ └── app_screenshots/
+
